@@ -1,0 +1,57 @@
+# Model Inference Validation Configuration
+
+cbt_guided: True
+
+mode: "inference"
+
+model:
+  partial_pretrain: "xxxx"   
+  checkpoint_path: "xxxx"
+  trust_remote_code: true
+  strategy: "fsdp"  
+  torch_dtype: "bfloat16"
+
+  lora_rank: 32
+  lora_alpha: 64
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+  fsdp_config:
+    model_dtype: "bf16"  
+    wrap_policy:
+      type: "transformer_layer"  
+    cpu_offload: false  
+    offload_params: false
+
+data:
+  val_files: "xxxx"
+
+  max_prompt_length: 2048
+  max_response_length: 128
+  micro_batch_size_per_gpu: 128 
+  seed: 42
+
+  dataloader_num_workers: 8
+
+  chat_template: null
+
+  custom_cls:
+    path: null
+
+rollout:
+  generation_batch_size: 128
+  max_new_tokens: 128
+  prompt_length: 2048
+  response_length: 128
+  max_model_len: 2560
+  use_bf16_generation: true
+  device: "cuda:0"
+
+  ppo_validation_files_path: "xxxx"  
+  
+  do_sample: True
+  temperature: 0.6
+  top_p: 0.9
+
+  dtype: "bfloat16"
+
+ulysses_sequence_parallel_size: 1

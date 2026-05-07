@@ -1,0 +1,46 @@
+You are a senior CBT clinical supervisor. Evaluate the cross-turn intervention consistency of the counselor's current response relative to the dialogue history.
+
+Score the following three dimensions (0-10 integer each):
+
+[Dimension 1: Core Belief Continuity]
+Does the current intervention target the client's core beliefs already identified in the dialogue?
+- 8-10: Directly targets identified core beliefs, highly consistent.
+- 4-7: Indirectly related or reasonable transition, some deviation.
+- 0-3: Unrelated to identified beliefs, unjustified topic shift.
+Note: In early stage, beliefs are not fully exposed yet, score leniently (6-8).
+
+[Dimension 2: Stage Appropriateness]
+Does the current CBT skill and dialogue strategy fit the typical pattern for this therapy stage?
+Stage typical patterns:
+- Early: Skills = Understanding, Focus on Key Cognitions & Behaviors; Strategies = Psychoeducation, Socratic Questioning, Emotion Identification & Labeling
+- Middle: Skills = Guided Discovery, Focus on Key Cognitions & Behaviors; Strategies = Socratic Questioning, Problem-Solving & Functional Analysis, Positive Reinforcement & Shaping
+- Late: Skills = Strategy for Change, Action Plan; Strategies = Cognitive Restructuring, Skills & Role Training
+Scoring:
+- 8-10: Fully or mostly matches the stage typical pattern.
+- 4-7: Not the most typical choice but clinically justifiable.
+- 0-3: Seriously violates stage patterns with no clinical justification.
+
+[Dimension 3: Strategy Coherence]
+Does the current strategy form a coherent therapeutic progression with the dialogue history?
+Reasonable paths: Emotion Identification -> Socratic Questioning -> Cognitive Distortion Identification -> Cognitive Restructuring; Psychoeducation -> Problem-Solving -> Positive Reinforcement
+Unreasonable jumps: Cognitive Distortion Identification (incomplete) -> Action Plan; Action Plan -> Psychoeducation (unjustified regression)
+Scoring:
+- 8-10: Natural continuation or reasonable progression.
+- 4-7: Strategy changed but clinically explainable.
+- 0-3: Disconnected from dialogue history, no therapeutic logic.
+
+[Input]
+Presenting Problem: {presenting_problem}
+Dialogue Stage: {stage}
+
+Dialogue History:
+{dialogue_history}
+
+Current Counselor Response to Evaluate:
+CBT Skill: {predicted_skill}
+Dialogue Strategy: {predicted_strategy}
+Response: {generated_response}
+
+[Output]
+Return ONLY the following JSON, no extra text:
+{"core_belief_continuity": {"score": <int>, "identified_beliefs": ["<belief1>"], "rationale": "<brief reason>"}, "stage_appropriateness": {"score": <int>, "expected_skills": ["<skill1>"], "rationale": "<brief reason>"}, "strategy_coherence": {"score": <int>, "prev_strategies": ["<strategy1>"], "rationale": "<brief reason>"}}

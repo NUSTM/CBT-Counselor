@@ -1,0 +1,247 @@
+defaults:
+  - _self_
+
+
+ray_init:
+  num_cpus: 16
+  timeline_json_file: null
+
+
+cbt_guided: True
+
+
+mode: "training"
+
+
+data:
+  train_files: xxxx
+  val_files: xxxx
+  train_batch_size: xxxx
+  max_prompt_length: 2048  
+  max_response_length: 128
+  filter_overlong_prompts: true
+  truncation: error
+  sampler: null
+  shuffle: true
+  validation_shuffle: false 
+  seed: 42
+  trust_remote_code: true
+  reward_fn_key: "reward_function"
+  dataloader_num_workers: 8
+  val_batch_size: null
+
+######################################################################################################################
+
+actor_rollout_ref:
+  hybrid_engine: true
+  strategy: "fsdp"
+
+  model:
+    path: xxxx
+    lora_rank: 32 
+    lora_alpha: 64
+    target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+    dtype: "bfloat16" 
+    trust_remote_code: true
+    exclude_modules: []
+    enable_gradient_checkpointing: true
+    gradient_checkpointing_kwargs:
+      use_reentrant: false 
+    use_remove_padding: true
+    use_shm: true
+
+  rollout:
+    name: "vllm"
+    mode: "sync"  
+    prompt_length: 2048
+    response_length: 128
+    max_model_len: 2176
+    n: xxxx                    
+    gpu_memory_utilization: xxxx  
+    log_prob_micro_batch_size_per_gpu: xxxx  
+
+
+    do_sample: True
+    # repetition_penalty: 1.1 
+    # temperature: 1.0 
+    # top_p: 0.95 
+    # top_k: 50 
+
+    temperature: 1.0  
+    top_p: 0.98  
+    top_k: null
+    repetition_penalty: null
+
+
+    dtype: "bfloat16"
+    
+    calculate_log_probs: true
+    log_prob_max_token_len_per_gpu: 2176
+    log_prob_use_dynamic_bsz: false
+    tensor_model_parallel_size: 1  
+
+    log_prob_micro_batch_size: null 
+
+
+    val_kwargs:
+      n: 1  
+      # do_sample: true
+      # repetition_penalty: 1.1 
+      # temperature: 0.7 
+      # top_p: 0.8 
+      # top_k: 20 
+      # min_p: 0.0 
+
+      do_sample: True 
+      temperature: 0.6  
+      top_p: 0.9 
+      top_k: null
+      repetition_penalty: null
+
+
+
+    load_format: "auto"
+    free_cache_engine: false
+    enforce_eager: false 
+    disable_log_stats: false
+    enable_chunked_prefill: false
+
+    multi_turn:
+      enable: false
+
+  actor:
+    use_dynamic_bsz: true
+    ppo_max_token_len_per_gpu: 2176
+    
+    ppo_epochs: xxxx           
+    ppo_micro_batch_size_per_gpu: xxxx  
+    ppo_mini_batch_size: xxxx  
+    ppo_micro_batch_size: null 
+
+
+    optim:
+      lr: xxxx                 
+      lr_warmup_steps_ratio: xxxx
+      weight_decay: 0.01
+      warmup_style: cosine
+      min_lr_ratio: 0.1
+      
+    clip_ratio: 0.2          
+    clip_ratio_low: 0.2    
+    clip_ratio_high: 0.28   
+    entropy_coeff: xxxx       
+
+    policy_loss:
+      loss_mode: "vanilla"
+
+    use_kl_loss: xxxx  
+    kl_loss_coef: xxxx  
+    kl_loss_type: xxxx
+    grad_clip: 1.0
+
+    ulysses_sequence_parallel_size: 1
+    strategy: "fsdp"
+    entropy_from_logits_with_chunking: false
+    
+    loss_agg_mode: "seq-mean-token-mean"  
+
+    entropy_checkpointing: true
+
+    checkpoint:
+      load_dir: null
+      save_interval: xxxx     
+      save_dir: null
+      resume_from_checkpoint: true
+      load_contents: ["model"]
+
+    fsdp_config:
+      fsdp_size: -1       
+      optimizer_offload: false
+      param_offload: false
+
+  ref:
+    # model:
+    #   path: xxx
+    #   use_remove_padding: true
+    #   enable_gradient_checkpointing: true
+    ulysses_sequence_parallel_size: 1
+    fsdp_config:
+      fsdp_size: -1
+      param_offload: true  
+    log_prob_micro_batch_size: null
+    log_prob_use_dynamic_bsz: true
+
+
+
+critic:
+  strategy: fsdp
+
+######################################################################################################################
+######################################################################################################################
+
+
+role_worker_mapping:
+  actor_rollout: FSDPWorker
+  ref: FSDPWorker
+
+
+
+algorithm:
+  adv_estimator: grpo
+  normalize_advantages: true
+  use_kl_in_reward: false
+  gamma: 0.99
+  lam: 0.95
+
+
+reward_model:
+  enable: false
+  launch_reward_fn_async: false
+  custom_reward_function:
+    reward_kwargs:
+      cbt_guided: True
+      safety_reward: 0.05  
+      format_reward: 0.05     
+      skill_reward: 0.12
+      strategy_reward: 0.13
+      response_content_reward: 0.3
+      intervention_diversity_weight: 0.05 
+      epitome_reward: 0.2
+      intervention_consistency_reward: 0.05
+      group_size: xxxx         
+
+
+trainer:
+  project_name: "xxxx"
+  experiment_name: "xxxxx"
+  logger: "swanlab"
+  log_val_generations: xxxx
+  validation_data_dir: "./val_generations"
+  
+
+  total_epochs: xxxx         
+  n_gpus_per_node: xxxx      
+  save_freq: xxxx             
+  test_freq: xxxx              
+  default_local_dir: xxxx     
+
+  max_actor_ckpt_to_keep: 3     
+
+  default_hdfs_dir: null
+  npu_profile:
+    options: null
+
+  device: "cuda"
+  nnodes: 1  
+  resume: false
+  resume_mode: "disable"
+  resume_from_path: null
+  profile_steps: null
+  balance_batch: false
+  esi_redundant_time: 300
+  
+  critic_warmup: 0
+
+  total_training_steps: null
+
+  val_before_train: true 

@@ -1,0 +1,46 @@
+# SFT Model Inference Validation Configuration
+
+cbt_guided: True
+
+model:
+  partial_pretrain: "xxxx"  
+  lora_path: "xxxx"
+  checkpoint_path: "xxxx"
+  trust_remote_code: true
+  strategy: "fsdp"  
+
+  lora_rank: 32  
+  lora_alpha: 64
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+  fsdp_config:
+    model_dtype: "bf16"  
+    wrap_policy:
+      type: "transformer_layer"  
+    cpu_offload: false  
+    offload_params: false
+
+data:
+  val_files: "xxxx"
+  max_length: 2048  
+  micro_batch_size_per_gpu: 128 
+
+  chat_template: null
+
+  custom_cls:
+    path: null
+
+rollout:
+  generation_batch_size: 128
+  max_new_tokens: 128
+  use_bf16_generation: true
+  device: "cuda:0"
+  use_custom_metrics: true
+
+  sft_validation_files_path: "xxxx"
+  
+  do_sample: True
+  temperature: 0.6
+  top_p: 0.9
+
+ulysses_sequence_parallel_size: 1

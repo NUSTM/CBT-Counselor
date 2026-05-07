@@ -1,0 +1,87 @@
+defaults:
+  - _self_
+
+cbt_guided: True
+
+
+data:
+
+  subset: "xxxx"
+
+  train_files: "xxxx"
+  val_files: "xxxx"
+
+
+  chat_template: null  
+
+  custom_cls:
+    path: null
+
+
+  max_length: 2048
+  train_batch_size: 32  
+  micro_batch_size_per_gpu: 16  
+  val_batch_size_per_gpu: 4  
+  balance_dp_token: true
+  num_workers: 8 
+
+  enable_thinking_key: "enable_thinking"   
+
+
+model:
+  partial_pretrain: "xxxx"
+  trust_remote_code: true
+  enable_gradient_checkpointing: true
+  
+
+  lora_rank: 32  
+  lora_alpha: 64
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+  
+
+  use_liger: false
+
+
+  strategy: "fsdp"
+  fsdp_config:
+    model_dtype: "bf16"     
+    wrap_policy:
+      type: "transformer_layer"
+    cpu_offload: false  
+    offload_params: false
+
+
+optim:
+  lr: 5e-5
+  betas: [0.9, 0.95]
+  weight_decay: 0.01
+  warmup_steps_ratio: 0.1
+  clip_grad: 1.0
+  lr_scheduler: "cosine"
+
+
+
+trainer:
+  total_epochs: 1  
+  total_training_steps: null 
+  project_name: "xxxxx"
+  experiment_name: "sft_stage"
+  logger: "swanlab" 
+    
+
+  resume_mode: "disable"
+  
+
+  device: 'cuda' 
+
+
+  default_local_dir: "xxxx"   
+  max_ckpt_to_keep: 3   
+
+  checkpoint:
+      save_contents: ["model","optimizer","extra"]  
+      load_contents: ["model","optimizer","extra"]  
+
+
+ulysses_sequence_parallel_size: 1  
+use_remove_padding: False  
